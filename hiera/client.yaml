@@ -1,0 +1,13 @@
+# Add these hiera values to a hiera file used for admin systems
+#
+mcollective::client::package_ensure: 'latest'
+mcollective::client::unix_group    : 'wheel'
+
+# Client plugins to install
+mcollective::plugin::clients:
+  package:
+    version: 'latest'
+  service:
+    version: 'latest'
+  puppet:
+    version: 'latest'
