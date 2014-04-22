@@ -12,6 +12,8 @@ This is a collective of file for r10k setup of the Puppet module used in the dev
 This repository contains an example r10k configuration and a Puppetfile
 for setting up the modules used in the Learning MCollective book.
 
+Example hiera data files are in the hiera/ directory.
+
 ## Simple Setup
 
 ```
