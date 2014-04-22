@@ -1,5 +1,8 @@
 # Add these hiera values to a hiera file used for admin systems
 #
+classes:
+  - mcollective::client
+
 mcollective::client::package_ensure: 'latest'
 mcollective::client::unix_group    : 'wheel'
 

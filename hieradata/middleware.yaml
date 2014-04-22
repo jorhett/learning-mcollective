@@ -1,0 +1,10 @@
+# Add these hiera values to a hiera file used by the middleware broker(s)
+#
+classes:
+  - mcollective::activemq
+
+# Middleware configuration
+# You must define these
+# use a command like 'openssl rand -base64 24' to generate unique values
+mcollective::middleware::keystore_password  : ''
+mcollective::middleware::truststore_password: ''

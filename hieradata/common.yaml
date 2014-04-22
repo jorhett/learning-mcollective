@@ -1,10 +1,14 @@
 # Add these hiera values to a hiera file used by all systems
 #
+classes:
+  - mcollective::server
+
 mcollective::hosts:
   - 'activemq.example.net'
 mcollective::collectives:
   - 'mcollective'
 
+# The module won't initialize without values here
 # use a command like 'openssl rand -base64 32' to generate unique values
 mcollective::client_password: ''
 mcollective::server_password: ''
@@ -21,12 +25,6 @@ mcollective::server::log_level  : 'debug'
 
 # Client configuration
 mcollective::client::package_ensure: 'absent'
-
-# Middleware configuration
-# You must define these
-# use a command like 'openssl rand -base64 24' to generate unique values
-mcollective::middleware::keystore_password  : ''
-mcollective::middleware::truststore_password: ''
 
 # Agent plugins to install
 mcollective::plugin::agents:
