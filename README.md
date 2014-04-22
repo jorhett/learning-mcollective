@@ -2,7 +2,7 @@
 
 ## Overview 
 
-This is a collective of file for r10k setup of the Puppet module used in the development of the book  
+This is a collection of files for r10k setup of the Puppet module used in the development of the book  
 [![Learning MCollective cover](http://akamaicovers.oreilly.com/images/0636920032472/rc_cat.gif)](http://shop.oreilly.com/product/0636920032472.do)
 >  O'Reilly Media, Inc  
 >  ISBN: [978-1-4919-4567-4](http://shop.oreilly.com/product/0636920032472.do) 
@@ -17,8 +17,8 @@ Example hiera data files are in the hiera/ directory.
 ## Simple Setup
 
 ```
-$ wget http://github.com/jorhett/learning-mcollective/raw/r10k.conf -o /etc/r10k.conf
-$ r10k deploy environment learning_mcollective -p
+$ wget https://raw.githubusercontent.com/jorhett/learning-mcollective/master/r10k.conf
+$ r10k deploy -c r10k.conf environment learning_mcollective -p
 
 # optionally
 $ puppet agent --test --environment learning_mcollective
