@@ -28,10 +28,15 @@ mcollective::client::package_ensure: 'absent'
 
 # Agent plugins to install
 mcollective::plugin::agents:
+  filemgr:
+    version: 'latest'
+  nettest:                                                                                                                                                                                   
+    version: 'latest'
   package:
     version: 'latest'
   service:
     version: 'latest'
+  # puppet has dependency on another package
   puppet :
     version     : 'latest'
     dependencies:

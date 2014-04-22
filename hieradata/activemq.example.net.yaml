@@ -1,0 +1,28 @@
+# Add these hiera values to a hiera file used by the middleware broker(s)
+# The middleware broker  will also have the client libraries (optional)
+#
+classes:
+  - mcollective::activemq
+  - mcollective::client
+
+# Middleware configuration
+# You must define these
+# use a command like 'openssl rand -base64 24' to generate unique values
+mcollective::middleware::keystore_password  : ''
+mcollective::middleware::truststore_password: ''
+
+mcollective::client::package_ensure: 'latest'
+mcollective::client::unix_group    : 'wheel'
+
+# Client plugins to install
+mcollective::plugin::clients:
+  filemgr:
+    version: 'latest'
+  nettest:
+    version: 'latest'
+  package:
+    version: 'latest'
+  puppet:
+    version: 'latest'
+  service:
+    version: 'latest'

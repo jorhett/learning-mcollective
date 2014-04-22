@@ -8,9 +8,13 @@ mcollective::client::unix_group    : 'wheel'
 
 # Client plugins to install
 mcollective::plugin::clients:
+  filemgr:
+    version: 'latest'
+  nettest:                                                                                                                                                                                   
+    version: 'latest'
   package:
     version: 'latest'
-  service:
-    version: 'latest'
   puppet:
+    version: 'latest'
+  service:
     version: 'latest'
