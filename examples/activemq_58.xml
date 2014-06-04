@@ -1,0 +1,218 @@
+<beans
+  xmlns="http://www.springframework.org/schema/beans"
+  xmlns:amq="http://activemq.apache.org/schema/core"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.springframework.org/schema/beans
+    http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
+    http://activemq.apache.org/schema/core
+    http://activemq.apache.org/schema/core/activemq-core.xsd
+    http://activemq.apache.org/camel/schema/spring
+    http://activemq.apache.org/camel/schema/spring/camel-spring.xsd"
+>
+
+    <broker xmlns="http://activemq.apache.org/schema/core"
+        brokerName="geode.netconsonance.com"
+        useJmx="true"
+        schedulePeriodForDestinationPurge="60000"
+        networkConnectorStartAsync="true"
+        dataDirectory="${activemq.base}/data"
+    >
+
+        <destinationPolicy>
+          <policyMap>
+            <policyEntries>
+              <!--
+                For better performances use VM cursor and small memory limit.
+                  http://activemq.apache.org/message-cursors.html
+             
+                MCollective works best with producer flow control disabled.
+                  http://activemq.apache.org/producer-flow-control.html
+              -->
+              <policyEntry
+                  topic=">"
+                  producerFlowControl="false"
+                  memoryLimit="1mb"
+              >
+                <pendingSubscriberPolicy>
+                  <vmCursor />
+                </pendingSubscriberPolicy>
+                <!-- The constantPendingMessageLimitStrategy is used to prevent
+                       slow topic consumers to block producers and affect other consumers
+                       by limiting the number of messages that are retained
+                         http://activemq.apache.org/slow-consumer-handling.html
+                     -->
+                <pendingMessageLimitStrategy>
+                  <constantPendingMessageLimitStrategy limit="1000"/>
+                </pendingMessageLimitStrategy>
+              </policyEntry>
+              <!-- MCollective generates a reply queue for most commands.
+                Garbage-collect these after five minutes to conserve memory. -->
+              <policyEntry
+                queue=">"
+                producerFlowControl="false"
+                memoryLimit="1mb"
+              >
+                <pendingQueuePolicy>
+                  <vmQueueCursor/>
+                </pendingQueuePolicy>
+              </policyEntry>
+              <policyEntry
+                queue="*.reply.>"
+                gcInactiveDestinations="true"
+                inactiveTimoutBeforeGC="300000"
+              />
+            </policyEntries>
+          </policyMap>
+        </destinationPolicy>
+
+        <!-- 
+          The managementContext is used to configure how ActiveMQ is exposed in 
+          JMX. By default, ActiveMQ uses the MBean server that is started by 
+          the JVM.  http://activemq.apache.org/jmx.html 
+        -->
+        <managementContext>
+            <managementContext createConnector="false"/>
+        </managementContext>
+
+        <plugins>
+          <statisticsBrokerPlugin/>
+          <simpleAuthenticationPlugin>
+            <users>
+                <!-- don't need this until we have multiple brokers
+                <authenticationUser username="admin" CHANGE-THE-PASSWORD password="ChangeMe!!!" groups="admins,everyone"/>
+                -->
+                <authenticationUser username="client" CHANGE-THE-PASSWORD password="ChangeMe!!" groups="servers,clients,everyone"/>
+                <authenticationUser username="server" CHANGE-THE-PASSWORD password="ChangeMe!" groups="servers,everyone"/>
+                <!-- you'll need to change the passwords above and remove CHANGE-THE-PASSWORD before this will work. -->
+            </users>
+          </simpleAuthenticationPlugin>
+
+          <authorizationPlugin>
+            <map>
+              <authorizationMap>
+                <authorizationEntries>
+                  <!-- don't need this until we have multiple brokers
+                  <authorizationEntry queue=">" write="admins" read="admins" admin="admins" />
+                  <authorizationEntry topic=">" write="admins" read="admins" admin="admins" />
+                  -->
+                  <authorizationEntry queue="mcollective.>" write="clients,mcollective-clients" read="clients,mcollective-clients" admin="clients,mcollective-clients" />
+                  <authorizationEntry topic="mcollective.>" write="clients,mcollective-clients" read="clients,mcollective-clients" admin="clients,mcollective-clients" />
+                  <authorizationEntry queue="mcollective.nodes" read="servers,mcollective-servers" admin="servers,mcollective-servers" />
+                  <authorizationEntry queue="mcollective.reply.>" write="servers,mcollective-servers" admin="servers,mcollective-servers" />
+                  <authorizationEntry topic="mcollective.*.agent" read="servers,mcollective-servers" admin="servers,mcollective-servers" />
+                  <authorizationEntry topic="mcollective.registration.agent" write="servers,mcollective-servers" read="servers,mcollective-servers" admin="servers,mcollective-servers" />
+                  <!--
+                    The advisory topics are part of ActiveMQ, and all users need access to them.
+                    The "everyone" group is not special; you need to ensure every user is a member.
+                  -->
+                  <authorizationEntry topic="ActiveMQ.Advisory.>" read="everyone" write="everyone" admin="everyone"/>
+                </authorizationEntries>
+              </authorizationMap>
+            </map>
+          </authorizationPlugin>
+        </plugins>
+
+        <!--
+          The systemUsage controls the maximum amount of space the broker will 
+          use before disabling caching and/or slowing down producers.
+            http://activemq.apache.org/producer-flow-control.html
+            http://docs.puppetlabs.com/mcollective/deploy/middleware/activemq.html#memory-and-temp-usage-for-messages-systemusage
+        -->
+        <systemUsage>
+            <systemUsage>
+                <memoryUsage>
+                    <memoryUsage limit="20 mb"/>
+                </memoryUsage>
+                <storeUsage>
+                    <storeUsage limit="1 gb"/>
+                </storeUsage>
+                <tempUsage>
+                    <tempUsage limit="100 mb"/>
+                </tempUsage>
+            </systemUsage>
+        </systemUsage>
+
+
+        <transportConnectors>
+          <transportConnector
+            name="stomp+nio" 
+            uri="stomp+nio://0.0.0.0:61613?maximumConnections=1000&amp;wireFormat.maxFrameSize=104857600"
+          />
+          <!-- Trusted SSL Verification uncomment to enable
+          <transportConnector
+            name="stomp+ssl" 
+            uri="stomp+ssl://0.0.0.0:61614?needClientAuth=true&amp;maximumConnections=1000&amp;wireFormat.maxFrameSize=104857600"
+          />
+          -->
+        </transportConnectors>
+
+        <!-- Keystore and Truststore for Trusted TLS Verification uncomment to enable
+        <sslContext>
+          <sslContext
+            keyStore="ssl/keystore.jks" CHANGE-THE-PASSWORD keyStorePassword="Change!Me"
+            trustStore="ssl/truststore.jks" CHANGE-THE-PASSWORD trustStorePassword="Change!Me"
+          />
+        </sslContext>
+        -->
+
+        <!-- broker connection -->
+        <!--   uncomment and fix hostnames and passwords to enable
+        <transportConnectors>
+          <transportConnector name="openwire" uri="tcp://0.0.0.0:61616" />
+        </transportConnectors>
+        <networkConnectors>
+          <networkConnector
+              name="remote-host-name_topics"
+              uri="static:(ssl://remote-host-name:61617?wireFormat.tightEncodingEnabled=false&amp;wireFormat.maxInactivityDuration=0)"
+              userName="admin"
+              password="You-Did-Change-Me-Right?"
+              duplex="false"
+              decreaseNetworkConsumerPriority="true"
+              suppressDuplicateTopicSubscriptions="true"
+              networkTTL="2"
+              dynamicOnly="true"
+              conduitSubscriptions="true"
+            >
+            <excludedDestinations>
+              <queue physicalName=">" />
+            </excludedDestinations>
+          </networkConnector>
+          <networkConnector
+              name="<%= remotehost -%>_queues"
+              uri="static:(ssl://remote-host-name:61617?wireFormat.tightEncodingEnabled=false&amp;wireFormat.maxInactivityDuration=0)"
+              userName="admin"
+              password="You-Did-Change-Me-Right?"
+              duplex="false"
+              decreaseNetworkConsumerPriority="true"
+              suppressDuplicateTopicSubscriptions="true"
+              networkTTL="2"
+              dynamicOnly="true"
+              conduitSubscriptions="false"
+            >
+            <excludedDestinations>
+              <topic physicalName=">" />
+            </excludedDestinations>
+          </networkConnector>
+        </networkConnectors>
+        -->
+    </broker>
+
+    <!-- Allows us to use system properties as variables in this configuration file -->
+    <!-- disabled to avoid well-known passwords, may need to enable when using Jetty or other tools below
+    <bean class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+        <property name="locations">
+            <value>file:${activemq.base}/conf/credentials.properties</value>
+        </property>      
+    </bean>
+    -->
+
+    <!--
+      Enable web consoles, REST and Ajax APIs and demos.
+        The web consoles requires by default login, you can disable this in the jetty.xml file
+
+      See ${ACTIVEMQ_HOME}/conf/jetty.xml for more details.
+    -->
+    <!-- disabled for security, don't enable without reading the ActiveMQ documentation
+    <import resource="jetty.xml"/>
+    -->
+</beans>

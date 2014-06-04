@@ -75,8 +75,12 @@
           <statisticsBrokerPlugin/>
           <simpleAuthenticationPlugin>
             <users>
-                <authenticationUser username="client" password="Invalid""Change-Me" groups="servers,clients,everyone"/>
-                <authenticationUser username="server" password="Invalid""Change-Me" groups="servers,everyone"/>
+                <!-- don't need this until we have multiple brokers
+                <authenticationUser username="admin" CHANGE-THE-PASSWORD password="ChangeMe!!!" groups="admins,everyone"/>
+                -->
+                <authenticationUser username="client" CHANGE-THE-PASSWORD password="ChangeMe!!" groups="servers,clients,everyone"/>
+                <authenticationUser username="server" CHANGE-THE-PASSWORD password="ChangeMe!" groups="servers,everyone"/>
+                <!-- you'll need to change the passwords above and remove CHANGE-THE-PASSWORD before this will work. -->
             </users>
           </simpleAuthenticationPlugin>
 
@@ -84,6 +88,10 @@
             <map>
               <authorizationMap>
                 <authorizationEntries>
+                  <!-- don't need this until we have multiple brokers
+                  <authorizationEntry queue=">" write="admins" read="admins" admin="admins" />
+                  <authorizationEntry topic=">" write="admins" read="admins" admin="admins" />
+                  -->
                   <authorizationEntry queue="mcollective.>" write="clients,mcollective-clients" read="clients,mcollective-clients" admin="clients,mcollective-clients" />
                   <authorizationEntry topic="mcollective.>" write="clients,mcollective-clients" read="clients,mcollective-clients" admin="clients,mcollective-clients" />
                   <authorizationEntry queue="mcollective.nodes" read="servers,mcollective-servers" admin="servers,mcollective-servers" />
@@ -127,14 +135,68 @@
             name="stomp+nio" 
             uri="stomp+nio://0.0.0.0:61613?maximumConnections=1000&amp;wireFormat.maxFrameSize=104857600"
           />
+          <!-- Trusted TLS Verification uncomment to enable
+          <transportConnector
+            name="stomp+nio+ssl" 
+            uri="stomp+nio+ssl://0.0.0.0:61614?needClientAuth=true&amp;maximumConnections=1000&amp;wireFormat.maxFrameSize=104857600"
+          />
+          -->
         </transportConnectors>
 
+        <!-- Keystore and Truststore for Trusted TLS Verification uncomment to enable
+        <sslContext>
+          <sslContext
+            keyStore="ssl/keystore.jks" CHANGE-THE-PASSWORD keyStorePassword="Change!Me"
+            trustStore="ssl/truststore.jks" CHANGE-THE-PASSWORD trustStorePassword="Change!Me"
+          />
+        </sslContext>
+        -->
+
+        <!-- broker connection -->
+        <!--   uncomment and fix hostnames and passwords to enable
+        <transportConnectors>
+          <transportConnector name="openwire" uri="tcp://0.0.0.0:61616" />
+        </transportConnectors>
         <networkConnectors>
+          <networkConnector
+              name="remote-host-name_topics"
+              uri="static:(ssl://remote-host-name:61617?wireFormat.tightEncodingEnabled=false&amp;wireFormat.maxInactivityDuration=0)"
+              userName="admin"
+              password="You-Did-Change-Me-Right?"
+              duplex="false"
+              decreaseNetworkConsumerPriority="true"
+              suppressDuplicateTopicSubscriptions="true"
+              networkTTL="2"
+              dynamicOnly="true"
+              conduitSubscriptions="true"
+            >
+            <excludedDestinations>
+              <queue physicalName=">" />
+            </excludedDestinations>
+          </networkConnector>
+          <networkConnector
+              name="<%= remotehost -%>_queues"
+              uri="static:(ssl://remote-host-name:61617?wireFormat.tightEncodingEnabled=false&amp;wireFormat.maxInactivityDuration=0)"
+              userName="admin"
+              password="You-Did-Change-Me-Right?"
+              duplex="false"
+              decreaseNetworkConsumerPriority="true"
+              suppressDuplicateTopicSubscriptions="true"
+              networkTTL="2"
+              dynamicOnly="true"
+              conduitSubscriptions="false"
+            >
+            <excludedDestinations>
+              <topic physicalName=">" />
+            </excludedDestinations>
+          </networkConnector>
         </networkConnectors>
-         <!-- destroy the spring context on shutdown to stop jetty -->
-         <shutdownHooks>
-             <bean xmlns="http://www.springframework.org/schema/beans" class="org.apache.activemq.hooks.SpringContextHook" />
-         </shutdownHooks>
+        -->
+
+        <!-- destroy the spring context on shutdown to stop jetty -->
+        <shutdownHooks>
+          <bean xmlns="http://www.springframework.org/schema/beans" class="org.apache.activemq.hooks.SpringContextHook" />
+        </shutdownHooks>
     </broker>
 
     <!-- Allows us to use system properties as variables in this configuration file -->
