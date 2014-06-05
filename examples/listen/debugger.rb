@@ -37,11 +37,16 @@ loop do
   agent = message.payload[:senderagent]
   body = message.payload[:body]
  
-  # Some debugging output (only use one)
+  # Only use one of these, as each includes the ones beneath it.
+  # - All the gory details
   #pp message
+
+  # - Everything we care about is here 
   #pp message.payload
-  #pp message.payload[:body]
-  
+
+  # - This contains just the data in the response
+  pp message.payload[:body]
+
   # Are we normally shaped reply with a statusmsg?
   if( body[:statusmsg] )
     puts sender.to_s + '/' + agent.to_s + ': ' + body[:statusmsg].to_s + '=' + body[:statuscode].to_s
