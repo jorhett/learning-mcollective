@@ -9,6 +9,11 @@ options = rpcoptions do |parser, options|
   parser.on('-p', '--person NAME', 'Name of the person to say goodbye to.') do |name|
     options[:person] = name
   end
+
+# We'll need this when MCO-207 is acted upon
+#  parser.on('--reply-to QUEUE', 'Set a target queue for results to be sent to.') do |queue|
+#    options[:reply_to] = queue
+#  end
 end
 
 # This is probably covered by the validation in the DDL
@@ -20,6 +25,11 @@ end
 # Create an MCollective client utilizing our agent
 client = rpcclient("thanks", :options => options)
 
+# Optionally send results to a reply queue
+if options.include?(:reply_to)
+  client.reply_to = options[:reply_to]
+end
+
 # If we want to see discovery results
 client.discover :verbose => true
 
@@ -30,9 +40,14 @@ client.discover :verbose => true
 #printrpc client.say_goodbye(:person => options[:person]), :verbose => true
 #printrpcstats
 
-# Format the output
-client.say_goodbye(:person => options[:person]).each do |resp|
-       printf("%-10s: %s\n", resp[:sender], resp[:data][:message])
+# we don't get any data back if results go to a queue
+if options.include?(:reply_to)
+  client.say_goodbye(:person => options[:person])
+else
+  # Format the output
+  client.say_goodbye(:person => options[:person]).each do |resp|
+    printf("%-10s: %s\n", resp[:sender], resp[:data][:message])
+  end
 end
 
 # Get the stats object from the request
@@ -40,7 +55,7 @@ end
 #print "No response from: " + client.stats.no_response_report + "\n"  # nodes which didn't respond
 #client.stats.to_hash.each {|key, value| puts "#{key} = #{value}" }
 
-# Play nice
-#print client.stats.report + "\n"
+# Output the request statistics
 print client.stats.report
+print "\n"
 client.disconnect
