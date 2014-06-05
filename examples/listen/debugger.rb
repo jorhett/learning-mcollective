@@ -45,7 +45,7 @@ loop do
   #pp message.payload
 
   # - This contains just the data in the response
-  pp message.payload[:body]
+  #pp message.payload[:body]
 
   # Are we normally shaped reply with a statusmsg?
   if( body[:statusmsg] )
