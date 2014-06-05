@@ -16,7 +16,10 @@ connector = MCollective::PluginManager['connector_plugin']
 connector.connect
 
 # Get a reply queue name from anywhere, hardcoded here
-replyqueue = 'debugger'
+replyqueue = ARGV[0] || 'debugger'
+
+# Default collective reply queue name appropriate for ActiveMQ
+#   something different would be required for other connectors
 queuename = '/queue/mcollective.reply.' + replyqueue
 
 # Here is the queue we want to listen to
