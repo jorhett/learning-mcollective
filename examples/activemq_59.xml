@@ -60,13 +60,22 @@
         </destinationPolicy>
 
         <!-- 
-          The managementContext is used to configure how ActiveMQ is exposed in 
-          JMX. By default, ActiveMQ uses the MBean server that is started by 
-          the JVM.  http://activemq.apache.org/jmx.html 
+          The managementContext is used to configure how ActiveMQ is exposed in JMX.
+          By default, ActiveMQ uses the MBean server that is started by the JVM.
+            http://activemq.apache.org/jmx.html 
         -->
         <managementContext>
             <managementContext createConnector="false"/>
         </managementContext>
+
+        <!--
+          Configure message persistence for the broker. The default persistence
+          mechanism is the KahaDB store (identified by the kahaDB tag). 
+            http://activemq.apache.org/persistence.html                                                                                                                                          
+        -->
+        <persistenceAdapter>
+            <kahaDB directory="kahadb" />
+        </persistenceAdapter>
 
         <plugins>
           <statisticsBrokerPlugin/>
