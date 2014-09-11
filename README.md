@@ -2,10 +2,13 @@
 
 ## Overview 
 
+<a href="http://shop.oreilly.com/product/0636920032472.do" target="OReilly"><img alt="Learning MCollective cover" src="http://akamaicovers.oreilly.com/images/0636920032472/cat.gif" align="left"></a>
 This is a collection of files for r10k setup of the Puppet module used in the development of the book  
-[![Learning MCollective cover](http://akamaicovers.oreilly.com/images/0636920032472/rc_cat.gif)](http://shop.oreilly.com/product/0636920032472.do)
->  O'Reilly Media, Inc  
->  ISBN: [978-1-4919-4567-4](http://shop.oreilly.com/product/0636920032472.do) 
+<a href="http://shop.oreilly.com/product/0636920032472.do" target="OReilly">Learning MCollective</a>.  
+
+O'Reilly Media, Inc  
+[http://shop.oreilly.com/product/0636920032472.do](http://shop.oreilly.com/product/0636920032472.do)
+ISBN: [978-1-4919-4567-4](http://shop.oreilly.com/product/0636920032472.do)  
 
 ## Description
 
