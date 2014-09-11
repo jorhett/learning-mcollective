@@ -7,8 +7,9 @@ This is a collection of files for r10k setup of the Puppet module used in the de
 <a href="http://shop.oreilly.com/product/0636920032472.do" target="OReilly">Learning MCollective</a>.  
 
 O'Reilly Media, Inc  
-[http://shop.oreilly.com/product/0636920032472.do](http://shop.oreilly.com/product/0636920032472.do)
+[http://shop.oreilly.com/product/0636920032472.do](http://shop.oreilly.com/product/0636920032472.do)  
 ISBN: [978-1-4919-4567-4](http://shop.oreilly.com/product/0636920032472.do)  
+<br clear="all" />
 
 ## Description
 
